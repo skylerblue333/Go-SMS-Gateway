@@ -1,0 +1,1 @@
+module go-sms-gateway\n\ngo 1.21\n
