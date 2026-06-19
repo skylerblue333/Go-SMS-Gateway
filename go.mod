@@ -1,1 +1,3 @@
-module go-sms-gateway\n\ngo 1.21\n
+module github.com/skylerblue333/go-sms-gateway
+
+go 1.21

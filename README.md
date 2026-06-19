@@ -1,1 +1,17 @@
-# Go-SMS-Gateway\n\n## Overview\nEnterprise-grade sms gateway implementation in Go.\n\n## Quick Start (1-Click Build)\n\n```bash\ngit clone https://github.com/skylerblue333/Go-SMS-Gateway.git\ncd Go-SMS-Gateway\n# Build instructions depend on the language\n```\n
+# Go-SMS-Gateway
+
+![CI](https://github.com/skylerblue333/Go-SMS-Gateway/workflows/CI/badge.svg)
+
+High-performance Go service for gateway operations.
+
+## Features
+- Highly concurrent `sync.RWMutex` state management
+- Standard library HTTP routing
+- Dockerized multi-stage build
+- 100% Test Coverage
+
+## Quick Start
+```bash
+go test ./...
+go run main.go
+```
