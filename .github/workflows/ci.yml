@@ -1,11 +1,51 @@
-name: CI
-on: [push, pull_request]
+name: sms-envelope-ci
+
+on:
+  push:
+    branches: [main, "product/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  verify:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
-      - run: go test -v ./...
+          go-version: '1.26.x'
+      - name: Format
+        run: test -z "$(gofmt -l .)"
+      - name: Vet
+        run: go vet ./...
+      - name: Tests
+        run: go test -v ./...
+      - name: Race tests
+        run: go test -race ./...
+      - name: Vulnerability scan
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+      - name: Build
+        run: CGO_ENABLED=0 go build -trimpath -o sky-sms-envelope .
+      - name: Build image
+        run: docker build -t sky-sms-envelope:ci .
+      - name: Verify non-root image
+        run: |
+          user="$(docker image inspect sky-sms-envelope:ci --format '{{.Config.User}}')"
+          test -n "$user"
+          test "$user" != "0"
+          test "$user" != "root"
+      - name: Smoke test service
+        run: |
+          docker run -d --rm --name sky-sms-envelope-ci -p 18082:8080 sky-sms-envelope:ci
+          trap 'docker stop sky-sms-envelope-ci >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:18082/healthz >/dev/null; then break; fi
+            sleep 0.25
+          done
+          curl --fail --silent http://127.0.0.1:18082/v1/messages/validate \
+            -H 'content-type: application/json' \
+            --data '{"to":"+14155550123","body":"hello"}' | grep -q '"provider_dispatch":false'
