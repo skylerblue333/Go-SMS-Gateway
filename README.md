@@ -1,44 +1,32 @@
-<!-- PORTFOLIO PROJECT PROFILE: maintained by the repository owner -->
+# Sky SMS Envelope
 
-## Project profile and code-audit snapshot
+**Status: engineering beta.** A bounded Go HTTP service for validating SMS message envelopes before a separately configured provider integration.
 
-**What this is:** **Go-SMS-Gateway** is a public repository described as: “Enterprise-grade sms gateway implementation in Go. #SkyCoin4444 #AI #Blockchain #DevOps #Innovation” Its dominant language signals are **Go (2 files)**.
+## Implemented
 
-**Why it has value:** Its value is best understood through the implementation evidence currently present in the repository: **16 tracked files** were observed in the shallow audit, with the source structure and existing documentation providing the project’s specific context. This README does not treat a prototype, experiment, or archive as a production system without supporting evidence.
+- Basic E.164-compatible destination validation (`+` plus 8–15 digits, non-zero country prefix).
+- UTF-8 message body validation with a 1,600-rune / 8 KiB ceiling.
+- Optional sender identifier capped at 32 bytes.
+- Strict single-object JSON parsing with unknown-field rejection.
+- `/healthz` and `/readyz` operational endpoints.
+- `POST /v1/messages/validate` response includes body rune/byte counts and always reports `provider_dispatch: false`.
+- HTTP server timeouts and graceful shutdown.
+- Go 1.26 format/vet/test/race/govulncheck/build gates plus non-root container smoke testing.
 
-**Implementation evidence:** 1 test-related file(s) detected; 2 dependency or package manifest(s) detected; 2 build/CI/infrastructure signal(s) detected; and 3 documentation or governance file(s) detected. Test filenames observed include `main_test.go`. Dependency or package files include `go.mod`, `package.json`. Build, CI, or infrastructure signals include `Dockerfile`, `.github/workflows/ci.yml`.
+Example:
 
-**Current status:** The repository is tracked on the `main` branch. The existing source tree, configuration, tests, workflows, and documentation remain authoritative for supported behavior and maturity. A code audit is not a production-readiness certification, and the presence of a test or workflow file does not establish that all checks pass.
+```bash
+curl -sS http://127.0.0.1:8080/v1/messages/validate \
+  -H 'content-type: application/json' \
+  --data '{"to":"+14155550123","body":"Hello from Sky"}'
+```
 
-**Relationship to the wider portfolio:** This repository is one focused component of the broader Skyler Blue Spillers portfolio across AI, software engineering, cloud and DevOps, cybersecurity, blockchain, finance, education, social systems, and creative work. It may provide a service boundary, implementation pattern, experiment, archive, or reusable idea for related repositories. Treat repositories as technical dependencies only where documented interfaces and verified project requirements support that relationship.
+## Scope limitations
 
-**Quality and security note:** No obvious secret-like pattern was detected by the limited static scan; this is not a substitute for a security audit. No TODO/FIXME marker was detected in the scanned text files.
+This repository does **not send SMS messages**. It has no Twilio/carrier/provider integration, delivery receipts, retries, durable queue, sender registration, opt-in/opt-out compliance workflows, regional telecom policy, tenant isolation, billing, rate limiting, HA, or production deployment.
 
----
+Basic E.164 formatting is only structural validation; it does not prove that a number exists, is reachable, or is legally permitted to receive a message.
 
-# Go Sms Gateway
+## SKYCOIN4444 integration
 
-![GitHub stars](https://img.shields.io/github/stars/skylerblue333/Go-SMS-Gateway?style=flat-square)
-![GitHub license](https://img.shields.io/github/license/skylerblue333/Go-SMS-Gateway?style=flat-square)
-
-## 🌟 Overview
-**Go-SMS-Gateway** is a professional-grade project within the **SkyCoin4444** ecosystem. It focuses on delivering high-value solutions in the domain of **Go**.
-
-## 🚀 Key Features
-- **Scalable Architecture**: Designed for enterprise-level growth and performance.
-- **Modern Standards**: Implements best practices for clean code and maintainability.
-- **Robust Integration**: Built to work seamlessly within modern cloud-native environments.
-
-## 🛠️ Technology Stack
-- **Primary Domain**: Go
-- **Ecosystem**: SkyCoin4444 Digital Platform
-
-## 📂 Structure
-The project is organized into a modular structure to ensure clarity and ease of development.
-
-## 👨‍💻 Author
-**Skyler Blue Spillers**
-*Professional Chess Player & Software Engineer*
-
----
-*Powered by SkyCoin4444*
+Use this service as a pre-provider validation boundary. Provider credentials, consent/compliance, durable delivery state, retries, observability, and billing must remain in separately verified integrations.
