@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -84,8 +85,8 @@ func validateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var extra any
-	if err := decoder.Decode(&extra); err == nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "only one JSON object is allowed"})
+	if err := decoder.Decode(&extra); !errors.Is(err, io.EOF) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "only one complete JSON object is allowed"})
 		return
 	}
 
