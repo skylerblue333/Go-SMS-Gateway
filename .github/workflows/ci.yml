@@ -20,6 +20,10 @@ jobs:
         run: test -z "$(gofmt -l .)"
       - name: Vet
         run: go vet ./...
+      - name: GolangCI-Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.8
       - name: Tests
         run: go test -v ./...
       - name: Race tests
