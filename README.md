@@ -13,6 +13,18 @@
 - HTTP server timeouts and graceful shutdown.
 - Go 1.26 format/vet/test/race/govulncheck/build gates plus non-root container smoke testing.
 
+## Development
+
+Go 1.26 or newer is required. This repository has no Node.js or JavaScript runtime dependency.
+
+```bash
+go test ./...
+go vet ./...
+CGO_ENABLED=0 go build -trimpath -o bin/sky-sms-envelope .
+```
+
+The same workflow is available through `make check`. `golangci-lint` is optional for local development.
+
 Example:
 
 ```bash
