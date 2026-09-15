@@ -1,13 +1,17 @@
-node_modules/
-dist/
-build/
-*.log
+# Go build/test output
+sky-sms-envelope
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Local configuration and secrets
 .env
 .env.local
+
+# Editor / OS files
 .DS_Store
 .vscode/
 .idea/
 *.swp
 *.swo
-coverage/
-.nyc_output/
